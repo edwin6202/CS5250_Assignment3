@@ -18,26 +18,43 @@ static void onebyte_exit(void);
 
 /* definition of file_operation structure */
 struct file_operations onebyte_fops = {
-read: onebyte_read,
-write: onebyte_write,
-open: onebyte_open,
-release: onebyte_release
+	read: onebyte_read,
+	write: onebyte_write,
+	open: onebyte_open,
+	release: onebyte_release
 };
 
+
 char *onebyte_data = NULL;
+bool isFileOpen = true;
+
 int onebyte_open(struct inode *inode, struct file *filep)
 {
-return 0; // always successful
+	return 0; // always successful
 }
+
 
 int onebyte_release(struct inode *inode, struct file *filep)
 {
-return 0; // always successful
+	return 0; // always successful
 }
 
 ssize_t onebyte_read(struct file *filep, char *buf, size_t count, loff_t *f_pos)
 {
-/*please complete the function on your own*/
+	if ((onebyte_data == NULL) || (onebyte_data[0] == '\0'))
+		return 0;
+	
+	if (!isFileOpen)
+	{
+		isFileOpen = true;
+		return 0;
+	}
+
+	/*please complete the function on your own*/
+	put_user(*onebyte_data, buf);
+	isFileOpen = false;
+	
+	return 1;
 }
 
 ssize_t onebyte_write(struct file *filep, const char *buf, size_t count, loff_t *f_pos)
