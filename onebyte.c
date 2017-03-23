@@ -40,18 +40,14 @@ int onebyte_release(struct inode *inode, struct file *filep)
 }
 
 ssize_t onebyte_read(struct file *filep, char *buf, size_t count, loff_t *f_pos)
-{
-	if ((onebyte_data == NULL) || (onebyte_data[0] == '\0'))
-		return 0;
-	
+{	
 	if (!isFileOpen)
 	{
 		isFileOpen = true;
 		return 0;
 	}
 
-	/*please complete the function on your own*/
-	put_user(*onebyte_data, buf);
+	copy_to_user(buf, onebyte_data, 1);
 	isFileOpen = false;
 	
 	return 1;
@@ -59,7 +55,20 @@ ssize_t onebyte_read(struct file *filep, char *buf, size_t count, loff_t *f_pos)
 
 ssize_t onebyte_write(struct file *filep, const char *buf, size_t count, loff_t *f_pos)
 {
-/*please complete the function on your own*/
+	if (count > 1)
+	{
+		copy_from_user(onebyte_data, buf, 1);
+		return -ENOSPC;
+	}
+	else if (count == 1 && strlen(buf) != 0)
+	{
+		copy_from_user(onebyte_data, buf, 1);
+		return 1;
+	}
+	else
+	{
+		return -EPERM;
+	}
 }
 
 static int onebyte_init(void)
